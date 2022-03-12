@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "name": "Conatel S.A.",
+      "label": "Organization",
+      "id": 1
+    },
+    {
+      "name": "Oficinas Centrales",
+      "label": "Location",
+      "id": 2
+    },
+    {
+      "name": "AP-Prueba-Oficina",
+      "label": "AP",
+      "id": 3
+    },
+    {
+      "name": "oficina",
+      "label": "Tag",
+      "id": 4
+    },
+    {
+      "name": "piso_2",
+      "label": "Tag",
+      "id": 5
+    },
+    {
+      "name": -31.32322,
+      "label": "Coordinate",
+      "id": 6
+    },
+    {
+      "name": -56.32322,
+      "label": "Coordinate",
+      "id": 7
+    },
+    {
+      "name": "Contract #1",
+      "label": "Contract",
+      "id": 8
+    },
+    {
+      "name": "Licence #1",
+      "label": "Licence",
+      "id": 9
+    },
+    {
+      "name": "Licence #2",
+      "label": "Licence",
+      "id": 10
+    },
+    {
+      "name": "Licence #3",
+      "label": "Licence",
+      "id": 11
+    }
+  ],
+  "links": [
+    {
+      "source": 1,
+      "target": 2,
+      "type": "Location",
+      "data": 'Oficinas centrales'
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "type": "AP",
+      "data": "AP-Prueba-Oficina"
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "type": "Location",
+      "data": 'Oficinas centrales'
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "type": "has"
+    },
+    {
+      "source": 3,
+      "target": 5,
+      "type": "has"
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "type": "Longitude"
+    },
+    {
+      "source": 2,
+      "target": 7,
+      "type": "Latitude"
+    },
+    {
+      "source": 1,
+      "target": 8,
+      "type": "Signed"
+    },
+    {
+      "source": 8,
+      "target": 9,
+      "type": "Includes"
+    },
+    {
+      "source": 8,
+      "target": 10,
+      "type": "Includes"
+    },
+    {
+      "source": 8,
+      "target": 11,
+      "type": "Includes"
+    },
+    {
+      "source": 3,
+      "target": 11,
+      "type": "IsAssigned"
+    }
+  ],
+}
