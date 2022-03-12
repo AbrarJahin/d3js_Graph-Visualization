@@ -61,7 +61,7 @@
       "source": 1,
       "target": 2,
       "type": "Location",
-      "data": 'Oficinas centrales'
+      "data": "Oficinas centrales"
     },
     {
       "source": 1,
@@ -73,7 +73,7 @@
       "source": 3,
       "target": 2,
       "type": "Location",
-      "data": 'Oficinas centrales'
+      "data": "Oficinas centrales"
     },
     {
       "source": 3,
@@ -120,5 +120,5 @@
       "target": 11,
       "type": "IsAssigned"
     }
-  ],
+  ]
 }
