@@ -4,7 +4,12 @@ var node, link, edgepaths, edgelabels;
 
 var default_width = 960;
 var default_height = 600;
-var margin = { top: 30, right: 50, bottom: 10, left: 50 };
+var margin = {
+	top: 30,
+	right: 50,
+	bottom: 10,
+	left: 50
+};
 
 function clearDiv(elementSelector) {
 	d3.selectAll(elementSelector + ' svg').remove();
@@ -63,7 +68,9 @@ function drawForcedDirectedGraph(
 			.attr('marker-end','url(#arrowhead)');
 
 		link.append("title")
-			.text(function (d) {return d.type;});
+			.text(function (d) {
+				return d.type;
+			});
 
 		edgepaths = svg.selectAll(".edgepath")
 			.data(links)
@@ -73,7 +80,9 @@ function drawForcedDirectedGraph(
 				'class': 'edgepath',
 				'fill-opacity': 0,
 				'stroke-opacity': 0,
-				'id': function (d, i) {return 'edgepath' + i}
+				'id': function (d, i) {
+					return 'edgepath' + i;
+				}
 			})
 			.style("pointer-events", "none");
 
@@ -84,7 +93,9 @@ function drawForcedDirectedGraph(
 			.style("pointer-events", "none")
 			.attrs({
 				'class': 'edgelabel',
-				'id': function (d, i) {return 'edgelabel' + i},
+				'id': function (d, i) {
+					return 'edgelabel' + i;
+				},
 				'font-size': 10,
 				'fill': '#aaa'
 			});
@@ -94,7 +105,9 @@ function drawForcedDirectedGraph(
 			.style("text-anchor", "middle")
 			.style("pointer-events", "none")
 			.attr("startOffset", "50%")
-			.text(function (d) {return d.type});
+			.text(function (d) {
+				return d.type;
+			});
 
 		node = svg.selectAll(".node")
 			.data(nodes)
@@ -109,14 +122,21 @@ function drawForcedDirectedGraph(
 
 		node.append("circle")
 			.attr("r", 5)
-			.style("fill", function (d, i) {return colors(i);});
+			.style("fill", function (d, i) {
+				return colors(i);
+			});
 
 		node.append("title")
-			.text(function (d) {return d.id;});
+			.text(function (d) {
+				return d.id;
+			});
 
 		node.append("text")
 			.attr("dy", -3)
-			.text(function (d) {return d.name+":"+d.label;});
+			.text(function (dataPoint) {
+				//return dataPoint.name+":"+dataPoint.label;
+				return dataPoint.name;
+			});
 
 		simulation
 			.nodes(nodes)
@@ -128,10 +148,18 @@ function drawForcedDirectedGraph(
 
 	function ticked() {
 		link
-			.attr("x1", function (d) {return d.source.x;})
-			.attr("y1", function (d) {return d.source.y;})
-			.attr("x2", function (d) {return d.target.x;})
-			.attr("y2", function (d) {return d.target.y;});
+			.attr("x1", function (d) {
+				return d.source.x;
+			})
+			.attr("y1", function (d) {
+				return d.source.y;
+			})
+			.attr("x2", function (d) {
+				return d.target.x;
+			})
+			.attr("y2", function (d) {
+				return d.target.y;
+			});
 
 		node
 			.attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
