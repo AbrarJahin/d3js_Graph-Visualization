@@ -1,203 +1,158 @@
-var colors = d3.scaleOrdinal(d3.schemeCategory10);
-
-var node, link, edgepaths, edgelabels;
-
-var default_width = 960;
-var default_height = 600;
-var margin = {
-	top: 30,
-	right: 50,
-	bottom: 10,
-	left: 50
-};
-
-function clearDiv(elementSelector) {
-	d3.selectAll(elementSelector + ' svg').remove();
-}
-
-function drawArcDiagram(
-	jsonUrl = "./data/graph2.json",
-	htmlSelector = "#force_directed_graph",
-	defaultWidth = default_width,
-	defaultHeight = default_height
-	) {
-	clearDiv(htmlSelector);
+function drawArcDiagram() {
 	// set the dimensions and margins of the graph
-	var width = defaultWidth - margin.left - margin.right;
-	var height = defaultHeight - margin.top - margin.bottom;
+	var margin = {top: 0, right: 30, bottom: 50, left: 60};
+	var width = 650 - margin.left - margin.right;
+	var height = 400 - margin.top - margin.bottom;
 
+	// append the svg object to the body of the page
+	var htmlSelector = "#my_dataviz";
 	var svg = d3.select(htmlSelector)
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom);
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	svg.append('defs').append('marker')
-		.attrs({
-			'id':'arrowhead',
-			'viewBox':'-0 -5 10 10',
-			'refX':13,
-			'refY':0,
-			'orient':'auto',
-			'markerWidth':13,
-			'markerHeight':13,
-			'xoverflow':'visible'
-		})
-		.append('svg:path')
-		.attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-		.attr('fill', '#999')
-		.style('stroke','none');
+	//https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_researcherNetwork.json
+	// Read dummy data
+	d3.json("./data/graph3.json", function( data) {
 
-	var simulation = d3.forceSimulation()
-		.force("link", d3.forceLink().id(function (d) {
-			return d.id;
-		}).distance(100).strength(1))
-		.force("charge", d3.forceManyBody())
-		.force("center", d3.forceCenter(width / 2, height / 2));
+	// List of node names
+	var allNodes = data.nodes.map(function(d){return d.name;});
 
-	d3.json(jsonUrl, function (error, graph) {
-		if (error) throw error;
-		update(graph.links, graph.nodes);
+	// List of groups
+	var allGroups = data.nodes.map(function(d) {
+		return d.label;
+		});
+	allGroups = [...new Set(allGroups)];
+
+	var connectionCounter = {};
+	allGroups.forEach((item, index)=>{
+		connectionCounter[item] = 0;
+		});
+
+		data.links.forEach((item, index)=>{
+			connectionCounter[item.source]+=1;
+			connectionCounter[item.target]+=1;
+		});
+
+	// A color scale for groups:
+	var color = d3.scaleOrdinal()
+		.domain(allGroups)
+		.range(d3.schemeSet3);
+
+	// A linear scale for node size
+	var size = d3.scaleLinear()
+		.domain([1,10])
+		.range([2,10]);
+
+	// A linear scale to position the nodes on the X axis
+	var x = d3.scalePoint()
+		.range([0, width])
+		.domain(allNodes);
+
+	// In my input data, links are provided between nodes -id-, NOT between node names.
+	// So I have to do a link between this id and the name
+	var idToNode = {};
+	data.nodes.forEach(function (n) {
+		idToNode[n.id] = n;
 	});
 
-	function update(links, nodes) {
-		link = svg.selectAll(".link")
-			.data(links)
-			.enter()
-			.append("line")
-			.attr("class", "link")
-			.attr('marker-end','url(#arrowhead)');
+	// Add the links
+	var links = svg
+		.selectAll('mylinks')
+		.data(data.links)
+		.enter()
+		.append('path')
+		.attr('d', function (d) {
+		var start = x(idToNode[d.source].name)    // X position of start node on the X axis
+		var end = x(idToNode[d.target].name)      // X position of end node
+		return ['M', start, height-30,    // the arc starts at the coordinate x=start, y=height-30 (where the starting node is)
+			'A',                            // This means we're gonna build an elliptical arc
+			(start - end)/2, ',',    // Next 2 lines are the coordinates of the inflexion point. Height of this point is proportional with start - end distance
+			(start - end)/2, 0, 0, ',',
+			start < end ? 1 : 0, end, ',', height-30] // We always want the arc on top. So if end is before start, putting 0 here turn the arc upside down.
+			.join(' ');
+		})
+		.style("fill", "none")
+		.attr("stroke", "grey")
+		.style("stroke-width", 1);
 
-		link.append("title")
-			.text(function (d) {
-				return d.type;
-			});
-
-		edgepaths = svg.selectAll(".edgepath")
-			.data(links)
-			.enter()
-			.append('path')
-			.attrs({
-				'class': 'edgepath',
-				'fill-opacity': 0,
-				'stroke-opacity': 0,
-				'id': function (d, i) {
-					return 'edgepath' + i;
-				}
+	// Add the circle for the nodes
+	var nodes = svg
+		.selectAll("mynodes")
+		.data(data.nodes.sort(function(a,b) {
+			return +b.id - +a.id;
+		}))
+		.enter()
+		.append("circle")
+		.attr("cx", function(d) {
+			return (x(d.name));
 			})
-			.style("pointer-events", "none");
-
-		edgelabels = svg.selectAll(".edgelabel")
-			.data(links)
-			.enter()
-			.append('text')
-			.style("pointer-events", "none")
-			.attrs({
-				'class': 'edgelabel',
-				'id': function (d, i) {
-					return 'edgelabel' + i;
-				},
-				'font-size': 10,
-				'fill': '#aaa'
-			});
-
-		edgelabels.append('textPath')
-			.attr('xlink:href', function (d, i) {return '#edgepath' + i})
-			.style("text-anchor", "middle")
-			.style("pointer-events", "none")
-			.attr("startOffset", "50%")
-			.text(function (d) {
-				return d.type;
-			});
-
-		node = svg.selectAll(".node")
-			.data(nodes)
-			.enter()
-			.append("g")
-			.attr("class", "node")
-			.call(d3.drag()
-					.on("start", dragstarted)
-					.on("drag", dragged)
-					.on("end", dragended)
-			);
-
-		node.append("circle")
-			.attr("r", 5)
-			.style("fill", function (d, i) {
-				return colors(i);
-			});
-
-		node.append("title")
-			.text(function (d) {
-				return d.id;
-			});
-
-		node.append("text")
-			.attr("dy", -3)
-			.text(function (dataPoint) {
-				//return dataPoint.name+":"+dataPoint.label;
-				return dataPoint.name;
-			});
-
-		simulation
-			.nodes(nodes)
-			.on("tick", ticked);
-
-		simulation.force("link")
-			.links(links);
-	}
-
-	function ticked() {
-		link
-			.attr("x1", function (d) {
-				return d.source.x;
+		.attr("cy", height-30)
+		.attr("r", function(d){
+			return connectionCounter[d.id]*1.5;
+			//return (size(d.id)); //Return size of the circle
 			})
-			.attr("y1", function (d) {
-				return d.source.y;
+		.style("fill", function(d) {
+			return color(d.label);
 			})
-			.attr("x2", function (d) {
-				return d.target.x;
+		.attr("stroke", "white");
+
+	// And give them a label
+	var labels = svg
+		.selectAll("mylabels")
+		.data(data.nodes)
+		.enter()
+		.append("text")
+		.attr("x", 0)
+		.attr("y", 0)
+		.text(function(d) {
+			return(d.name);   //Write node label here
 			})
-			.attr("y2", function (d) {
-				return d.target.y;
-			});
+		.style("text-anchor", "end")
+		.attr("transform", function(d){
+			return ("translate(" + (x(d.name)) + "," + (height-15) + ")rotate(-45)");
+			})
+		.style("font-size", 10);
 
-		node
-			.attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
-
-		edgepaths.attr('d', function (d) {
-			return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+	// Add the highlighting functionality
+	nodes
+		.on('mouseover', function (d) {
+		// Highlight the nodes: every node is green except of him
+		nodes
+			.style('opacity', .2)
+		d3.select(this)
+			.style('opacity', 1)
+		// Highlight the connections
+		links
+			.style('stroke', function (link_d) {
+				return link_d.source === d.id || link_d.target === d.id ? color(d.label) : '#b8b8b8';
+			})
+			.style('stroke-opacity', function (link_d) {
+				return link_d.source === d.id || link_d.target === d.id ? 1 : .2;
+			})
+			.style('stroke-width', function (link_d) {
+				return link_d.source === d.id || link_d.target === d.id ? 4 : 1;
+			})
+		labels
+			.style("font-size", function(label_d){
+				return label_d.name === d.name ? 20 : 10;
+			})
+			.attr("y", function(label_d){
+				return label_d.name === d.name ? 10 : 0;
+			})
+		})
+		.on('mouseout', function (d) {
+		nodes.style('opacity', 1);
+		links
+			.style('stroke', 'grey')
+			.style('stroke-opacity', .8)
+			.style('stroke-width', '1');
+		labels
+			.style("font-size", 10 );
 		});
-
-		edgelabels.attr('transform', function (d) {
-			if (d.target.x < d.source.x) {
-				var bbox = this.getBBox();
-
-				var rx = bbox.x + bbox.width / 2;
-				var ry = bbox.y + bbox.height / 2;
-				return 'rotate(180 ' + rx + ' ' + ry + ')';
-			}
-			else {
-				return 'rotate(0)';
-			}
-		});
-	}
-
-	function dragstarted(d) {
-		if (!d3.event.active) simulation.alphaTarget(0.3).restart()
-		d.fx = d.x;
-		d.fy = d.y;
-	}
-
-	function dragged(d) {
-		d.fx = d3.event.x;
-		d.fy = d3.event.y;
-	}
-
-	function dragended(d) {
-		if (!d3.event.active) simulation.alphaTarget(0);
-		d.fx = undefined;
-		d.fy = undefined;
-	}
+	});
 }
 
 //Export Function
