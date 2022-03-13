@@ -1,11 +1,14 @@
-function drawArcDiagram() {
+var defaultWidth = 650,
+	defaultHeight = 400,
+	defaultSelector = "#my_dataviz";
+
+function drawArcDiagram(data, htmlSelector = defaultSelector, svg_width = defaultWidth, svg_height = defaultHeight) {
 	// set the dimensions and margins of the graph
 	var margin = {top: 0, right: 30, bottom: 50, left: 60};
-	var width = 650 - margin.left - margin.right;
-	var height = 400 - margin.top - margin.bottom;
+	var width = svg_width - margin.left - margin.right;
+	var height = svg_height - margin.top - margin.bottom;
 
 	// append the svg object to the body of the page
-	var htmlSelector = "#my_dataviz";
 	var svg = d3.select(htmlSelector)
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
@@ -13,12 +16,10 @@ function drawArcDiagram() {
 		.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	//https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_researcherNetwork.json
-	// Read dummy data
-	d3.json("./data/graph3.json", function( data) {
-
 	// List of node names
-	var allNodes = data.nodes.map(function(d){return d.name;});
+	var allNodes = data.nodes.map(function(d){
+		return d.name;
+	});
 
 	// List of groups
 	var allGroups = data.nodes.map(function(d) {
@@ -65,8 +66,8 @@ function drawArcDiagram() {
 		.enter()
 		.append('path')
 		.attr('d', function (d) {
-		var start = x(idToNode[d.source].name)    // X position of start node on the X axis
-		var end = x(idToNode[d.target].name)      // X position of end node
+		var start = x(idToNode[d.source].name);    // X position of start node on the X axis
+		var end = x(idToNode[d.target].name);      // X position of end node
 		return ['M', start, height-30,    // the arc starts at the coordinate x=start, y=height-30 (where the starting node is)
 			'A',                            // This means we're gonna build an elliptical arc
 			(start - end)/2, ',',    // Next 2 lines are the coordinates of the inflexion point. Height of this point is proportional with start - end distance
@@ -152,7 +153,7 @@ function drawArcDiagram() {
 		labels
 			.style("font-size", 10 );
 		});
-	});
+	
 }
 
 //Export Function
