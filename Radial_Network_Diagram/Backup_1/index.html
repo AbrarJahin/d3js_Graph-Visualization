@@ -46,7 +46,7 @@ var svg = d3.select('svg')
 	.append('g')
 		.attr('transform', 'translate(' + radius + ',' + radius + ')');
 
-d3.json('./data/jean.json', function (error, graph) {
+d3.json('./jean.json', function (error, graph) {
 	if (error) throw error;
 
 	var idToNode = {};
