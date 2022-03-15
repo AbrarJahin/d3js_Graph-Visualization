@@ -1,0 +1,43 @@
+{
+    "nodes": [
+      {
+        "id": "1",
+        "chapters": [
+          "1"
+        ],
+        "name": "1"
+      },
+      {
+        "id": "2",
+        "chapters": [
+          "2"
+        ],
+        "name": "2"
+      },
+      {
+        "id": "3",
+        "chapters": [
+          "3"
+        ],
+        "name": "3"
+      }
+    ],
+    "links": [
+        {
+            "source": "1",
+            "target": "2",
+            "chapters": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "source": "2",
+            "target": "3",
+            "chapters": [
+              "2",
+              "3"
+            ]
+          }
+    ]
+  }
