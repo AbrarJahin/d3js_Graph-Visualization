@@ -6,6 +6,8 @@ The adjacency matrix is looking like this-
 
 ![Adjacency Matrix](./.doc/Adjacency_Matrix.jpg)
 
+## Manual Drawing
+
 Hand drawn graph from the adjacency matrix is like this-
 
 ![Manual hand drawing](./.doc/Manual_Hand_Drawing.jpg)
